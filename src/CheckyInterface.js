@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mic, ArrowLeft, Settings } from 'lucide-react';
 
-// Die API und Sprachausgabefunktionen hier
+// API und Sprachausgabefunktionen hier
 const API_KEY = "app-brf1CEkSLwAxtTsgKqBtNR4U";
 const BASE_URL = "http://dify-u21003.vm.elestio.app/v1";
 
@@ -31,23 +31,37 @@ const speak = (text) => {
   speechSynthesis.speak(utterance);
 };
 
+// Web Speech API zur Spracherkennung
+window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new window.SpeechRecognition();
+recognition.lang = 'de-DE'; // Setze die Sprache auf Deutsch
+recognition.interimResults = false; // Nur endgültige Ergebnisse verwenden
+recognition.maxAlternatives = 1;
+
 const CheckyInterface = () => {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleMicClick = () => {
     setIsListening(true);
-    
-    setTimeout(async () => {
+    recognition.start(); // Starte die Spracherkennung
+
+    recognition.onresult = async (event) => {
+      const speechResult = event.results[0][0].transcript; // Erkanntes Wort/Satz
       setIsListening(false);
       setIsProcessing(true);
       
-      const question = "Warum ist der Himmel blau?"; // Beispielhafte Frage
-      const answer = await askDify(question); // Anfrage an die Dify-API
-      speak(answer); // Antwort mit Sprachausgabe
+      // API-Anfrage an Dify
+      const answer = await askDify(speechResult); 
+      speak(answer); // Antwort aussprechen
       setIsProcessing(false);
-      
-    }, 3000); // Zeit bis zur "Erkennung"
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Spracherkennung Fehler: ", event.error);
+      setIsListening(false);
+      setIsProcessing(false);
+    };
   };
 
   return (
