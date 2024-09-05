@@ -5,7 +5,7 @@
   "dependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "lucide-react": "^0.0.1"  // Das Icon-Paket, das du verwendest
+    "lucide-react": "^0.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
